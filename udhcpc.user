@@ -1,0 +1,20 @@
+#!/bin/sh
+
+IP="/usr/sbin/ip"
+
+
+logger -s -t test "User script triggered, Interface is $interface, router $dns"
+
+if [ -n "$(echo $interface | grep wisim)" ]; then
+	TABLE="$(cat /tmp/wisim-table)"
+	sleep 1
+	$IP address add $ip/32 dev $interface
+	$IP route del default via $dns dev $interface
+	$IP rule add from $ip/32 table $TABLE
+	$IP route add 6.0.17.128/25 dev $interface
+	$IP route add 6.0.17.128/25 dev $interface table $TABLE
+	$IP route add default via $dns dev $interface table $TABLE
+	$IP route del 6.0.17.128/25 dev $interface
+fi
+
+exit 0
